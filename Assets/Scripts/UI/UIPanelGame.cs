@@ -36,4 +36,9 @@ public class UIPanelGame : MonoBehaviour,IMenu
     {
         this.gameObject.SetActive(false);
     }
+
+    public void RestartLevel()
+    {
+        GameManager.Instance.RestartLevel();
+    }
 }

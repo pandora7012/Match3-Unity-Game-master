@@ -6,6 +6,11 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    
+    public static GameManager Instance;
+    
+    
+    
     public event Action<eStateGame> StateChangedAction = delegate { };
 
     public enum eLevelMode
@@ -13,6 +18,8 @@ public class GameManager : MonoBehaviour
         TIMER,
         MOVES
     }
+
+    private eLevelMode _currentMode;
 
     public enum eStateGame
     {
@@ -47,6 +54,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
         State = eStateGame.SETUP;
 
         m_gameSettings = Resources.Load<GameSettings>(Constants.GAME_SETTINGS_PATH);
@@ -90,11 +98,13 @@ public class GameManager : MonoBehaviour
         {
             m_levelCondition = this.gameObject.AddComponent<LevelMoves>();
             m_levelCondition.Setup(m_gameSettings.LevelMoves, m_uiMenu.GetLevelConditionView(), m_boardController);
+            _currentMode = eLevelMode.MOVES;
         }
         else if (mode == eLevelMode.TIMER)
         {
             m_levelCondition = this.gameObject.AddComponent<LevelTime>();
             m_levelCondition.Setup(m_gameSettings.LevelMoves, m_uiMenu.GetLevelConditionView(), this);
+            _currentMode = eLevelMode.TIMER;
         }
 
         m_levelCondition.ConditionCompleteEvent += GameOver;
@@ -135,5 +145,11 @@ public class GameManager : MonoBehaviour
             Destroy(m_levelCondition);
             m_levelCondition = null;
         }
+    }
+    
+    public void RestartLevel()
+    {
+        ClearLevel();
+        LoadLevel(_currentMode);
     }
 }
