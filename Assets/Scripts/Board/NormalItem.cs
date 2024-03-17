@@ -27,7 +27,15 @@ public class NormalItem : Item
         base.SetView();
         View = PoolingController.Instance.GetItemByType(ItemType).transform;
         sp = View.GetComponent<SpriteRenderer>();
-        
+        SetSkin();
+    }
+
+    private void SetSkin()
+    {
+        if (SkinController.Instance.currentSkin is SkinController.eSkin.Normal)
+            return; // No need to change skin
+        if (sp is null) return;
+        sp.sprite = SkinController.Instance.GetSkin((int)ItemType);
     }
 
     protected override string GetPrefabName()
