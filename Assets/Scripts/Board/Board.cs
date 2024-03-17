@@ -46,7 +46,7 @@ public class Board
         {
             for (int y = 0; y < boardSizeY; y++)
             {
-                var  go = PoolingController.Instance.GetCellBackground();
+                var go = PoolingController.Instance.GetCellBackground();
                 go.transform.position = origin + new Vector3(x, y, 0f);
                 go.transform.SetParent(m_root);
 
@@ -68,7 +68,6 @@ public class Board
                 if (x > 0) m_cells[x, y].NeighbourLeft = m_cells[x - 1, y];
             }
         }
-
     }
 
     internal void Fill()
@@ -144,9 +143,16 @@ public class Board
                 Cell cell = m_cells[x, y];
                 if (!cell.IsEmpty) continue;
 
-                NormalItem item = new NormalItem();
+                List<NormalItem.eNormalType> surrounding = new List<NormalItem.eNormalType>();
 
-                item.SetType(Utils.GetRandomNormalType());
+                //Checking surrounding cells
+                surrounding = GetSurrounding(cell);
+                NormalItem item = new NormalItem();
+                var leastFrequent = GetLeaseFrequentItemFromList();
+                item.SetType(!surrounding.Contains(leastFrequent)
+                    ? leastFrequent
+                    : Utils.GetRandomNormalTypeExcept(surrounding.ToArray()));
+
                 item.SetView();
                 item.SetViewRoot(m_root);
 
@@ -155,6 +161,58 @@ public class Board
             }
         }
     }
+
+    private List<NormalItem.eNormalType> GetSurrounding(Cell cell)
+    {
+        List<NormalItem.eNormalType> surrounding = new List<NormalItem.eNormalType>();
+
+        //Checking surrounding cells
+        if (cell.NeighbourBottom != null)
+        {
+            NormalItem nitem = cell.NeighbourBottom.Item as NormalItem;
+            if (nitem != null) surrounding.Add(nitem.ItemType);
+        }
+
+        if (cell.NeighbourLeft != null)
+        {
+            NormalItem nitem = cell.NeighbourLeft.Item as NormalItem;
+            if (nitem != null) surrounding.Add(nitem.ItemType);
+        }
+
+        if (cell.NeighbourRight != null)
+        {
+            NormalItem nitem = cell.NeighbourRight.Item as NormalItem;
+            if (nitem != null) surrounding.Add(nitem.ItemType);
+        }
+
+        if (cell.NeighbourUp != null)
+        {
+            NormalItem nitem = cell.NeighbourUp.Item as NormalItem;
+            if (nitem != null) surrounding.Add(nitem.ItemType);
+        }
+
+        return surrounding;
+    }
+
+
+    private NormalItem.eNormalType GetLeaseFrequentItemFromList()
+    {
+        Dictionary<NormalItem.eNormalType, int> count = new Dictionary<NormalItem.eNormalType, int>();
+        foreach (var cell in m_cells)
+        {
+            if (cell.Item is NormalItem)
+            {
+                NormalItem.eNormalType type = (cell.Item as NormalItem).ItemType;
+        
+
+                if (!count.TryAdd(type, 1))
+                    count[type]++;
+            }
+        }
+
+        return count.OrderBy(pair => pair.Value).First().Key;
+    }
+
 
     internal void ExplodeAllItems()
     {
@@ -178,7 +236,10 @@ public class Board
         cell2.Assign(item);
 
         item.View.DOMove(cell2.transform.position, 0.3f);
-        item2.View.DOMove(cell1.transform.position, 0.3f).OnComplete(() => { if (callback != null) callback(); });
+        item2.View.DOMove(cell1.transform.position, 0.3f).OnComplete(() =>
+        {
+            if (callback != null) callback();
+        });
     }
 
     public List<Cell> GetHorizontalMatches(Cell cell)
@@ -349,7 +410,7 @@ public class Board
         var dir = GetMatchDirection(matches);
 
         var bonus = matches.Where(x => x.Item is BonusItem).FirstOrDefault();
-        if(bonus == null)
+        if (bonus == null)
         {
             return matches;
         }
@@ -366,6 +427,7 @@ public class Board
                         result.Add(cell);
                     }
                 }
+
                 break;
             case eMatchDirection.VERTICAL:
                 foreach (var cell in matches)
@@ -376,6 +438,7 @@ public class Board
                         result.Add(cell);
                     }
                 }
+
                 break;
             case eMatchDirection.ALL:
                 foreach (var cell in matches)
@@ -386,6 +449,7 @@ public class Board
                         result.Add(cell);
                     }
                 }
+
                 break;
         }
 
@@ -613,7 +677,8 @@ public class Board
 
         //look left
         third = null;
-        third = CheckThirdCell(target.NeighbourLeft, main); ;
+        third = CheckThirdCell(target.NeighbourLeft, main);
+        ;
         if (third != null)
         {
             return third;
