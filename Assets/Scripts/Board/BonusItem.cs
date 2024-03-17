@@ -40,6 +40,13 @@ public class BonusItem : Item
 
         return prefabname;
     }
+    
+    public override void SetView()
+    {
+        base.SetView();
+        View = PoolingController.Instance.GetItemByType(ItemType).transform;
+        
+    }
 
     internal override bool IsSameType(Item other)
     {

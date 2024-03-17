@@ -9,21 +9,24 @@ public class Item
 {
     public Cell Cell { get; private set; }
 
-    public Transform View { get; private set; }
+    public Transform View;
 
-
+    protected SpriteRenderer sp = null; 
     public virtual void SetView()
     {
-        string prefabname = GetPrefabName();
+        /*string prefabname = GetPrefabName();
 
         if (!string.IsNullOrEmpty(prefabname))
         {
-            GameObject prefab = Resources.Load<GameObject>(prefabname);
+            /*GameObject prefab = Resources.Load<GameObject>(prefabname);
             if (prefab)
             {
                 View = GameObject.Instantiate(prefab).transform;
-            }
-        }
+            }#1#
+            
+          //  View = PoolingController.Instance.GetItem(prefabname).transform;
+            sp = View.GetComponent<SpriteRenderer>();
+        }*/
     }
 
     protected virtual string GetPrefabName() { return string.Empty; }
@@ -60,7 +63,7 @@ public class Item
     {
         if (View == null) return;
 
-        SpriteRenderer sp = View.GetComponent<SpriteRenderer>();
+       // SpriteRenderer sp = View.GetComponent<SpriteRenderer>();
         if (sp)
         {
             sp.sortingOrder = 1;
@@ -72,7 +75,7 @@ public class Item
     {
         if (View == null) return;
 
-        SpriteRenderer sp = View.GetComponent<SpriteRenderer>();
+       // SpriteRenderer sp = View.GetComponent<SpriteRenderer>();
         if (sp)
         {
             sp.sortingOrder = 0;
@@ -101,7 +104,8 @@ public class Item
             View.DOScale(0.1f, 0.1f).OnComplete(
                 () =>
                 {
-                    GameObject.Destroy(View.gameObject);
+                    //GameObject.Destroy(View.gameObject);
+                    PoolingController.Instance.Release(View.gameObject);
                     View = null;
                 }
                 );
@@ -132,7 +136,9 @@ public class Item
 
         if (View)
         {
-            GameObject.Destroy(View.gameObject);
+            sp = null; 
+            // GameObject.Destroy(View.gameObject);
+            PoolingController.Instance.Release(View.gameObject);
             View = null;
         }
     }

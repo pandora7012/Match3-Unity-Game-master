@@ -22,6 +22,14 @@ public class NormalItem : Item
         ItemType = type;
     }
 
+    public override void SetView()
+    {
+        base.SetView();
+        View = PoolingController.Instance.GetItemByType(ItemType).transform;
+        sp = View.GetComponent<SpriteRenderer>();
+        
+    }
+
     protected override string GetPrefabName()
     {
         string prefabname = string.Empty;

@@ -85,9 +85,9 @@ public class BoardController : MonoBehaviour
             }
         }
 
+        var hit = Physics2D.Raycast(m_cam.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
         if (Input.GetMouseButtonDown(0))
         {
-            var hit = Physics2D.Raycast(m_cam.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             if (hit.collider != null)
             {
                 m_isDragging = true;
@@ -102,7 +102,7 @@ public class BoardController : MonoBehaviour
 
         if (Input.GetMouseButton(0) && m_isDragging)
         {
-            var hit = Physics2D.Raycast(m_cam.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+            // var hit = Physics2D.Raycast(m_cam.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             if (hit.collider != null)
             {
                 if (m_hitCollider != null && m_hitCollider != hit.collider)
@@ -115,10 +115,7 @@ public class BoardController : MonoBehaviour
                     {
                         IsBusy = true;
                         SetSortingLayer(c1, c2);
-                        m_board.Swap(c1, c2, () =>
-                        {
-                            FindMatchesAndCollapse(c1, c2);
-                        });
+                        m_board.Swap(c1, c2, () => { FindMatchesAndCollapse(c1, c2); });
 
                         ResetRayCast();
                     }
@@ -161,10 +158,7 @@ public class BoardController : MonoBehaviour
 
             if (matches.Count < m_gameSettings.MatchesMin)
             {
-                m_board.Swap(cell1, cell2, () =>
-                {
-                    IsBusy = false;
-                });
+                m_board.Swap(cell1, cell2, () => { IsBusy = false; });
             }
             else
             {
@@ -224,7 +218,7 @@ public class BoardController : MonoBehaviour
             matches[i].ExplodeItem();
         }
 
-        if(matches.Count > m_gameSettings.MatchesMin)
+        if (matches.Count > m_gameSettings.MatchesMin)
         {
             m_board.ConvertNormalToBonus(matches, cellEnd);
         }
